@@ -31,7 +31,7 @@
             </el-checkbox>
           </el-form-item>
         </el-form>
-        <el-button type="primary" class="btn-login" @click="doLogin">登录</el-button>
+        <el-button type="primary" class="btn-login" @click="doLogin" :loading="isloading">登录</el-button>
       </div>
     </div>
   </div>
@@ -59,7 +59,8 @@ export default {
           { pattern: /true/, message: "请阅读并选中", trigger: "change" }
         ]
       },
-      sec: 60
+      sec: 60,
+      isloading:false
     };
   },
   methods: {
@@ -91,6 +92,7 @@ export default {
       // validate方法判断用户输入是否正确
       this.$refs['ruleForm'].validate(valid => {
         if (valid) {
+          this.isloading = true;
           // 发送axios
             this.$axios
             .post("http://ttapi.research.itcast.cn/mp/v1_0/authorizations", {
@@ -112,7 +114,7 @@ export default {
                   message: "登录成功！",
                   type: "success"
                 });
-
+                
                 // 如果正确就跳转到home页
                 this.$router.push("/home");
 
@@ -134,7 +136,7 @@ export default {
                   type: "error"
                 });
             } )
-          
+          // this.isLoading = false;
         } else {
           this.$message('请输入正确的手机号或验证码')
           return false;

@@ -11,6 +11,7 @@
         </el-header>
         <el-main class="my-side-main">
           <el-menu
+            router
             default-active="2"
             class="el-menu-vertical-demo"
             background-color="#353b4e"
@@ -29,7 +30,7 @@
                 <span>内容管理</span>
               </template>
               <el-menu-item index="1-1">发布文章</el-menu-item>
-              <el-menu-item index="1-2">内容列表</el-menu-item>
+              <el-menu-item index="/acticle">内容列表</el-menu-item>
               <el-menu-item index="1-3">评论列表</el-menu-item>
               <el-menu-item index="1-4">素材管理</el-menu-item>
             </el-submenu>
@@ -71,7 +72,7 @@
               ></el-input>
             </el-col>
             <el-col :span="4" class="nav-bar">
-              <el-dropdown trigger="click">
+              <el-dropdown trigger="click" @command="handleCommand">
                 <span class="el-dropdown-link user-info">
                   <img :src="userInfo.photo" alt />
                   <span class="username">{{ userInfo.name }}</span>
@@ -79,16 +80,18 @@
                 </span>
 
                 <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item>个人信息</el-dropdown-item>
-                  <el-dropdown-item>git地址</el-dropdown-item>
-                  <el-dropdown-item>退出</el-dropdown-item>
+                  <el-dropdown-item command="info">个人信息</el-dropdown-item>
+                  <el-dropdown-item command="git">git地址</el-dropdown-item>
+                  <el-dropdown-item command="logout">退出</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
             </el-col>
           </el-row>
         </el-header>
 
-        <el-main>Main</el-main>
+        <el-main>
+          <router-view></router-view>
+        </el-main>
       </el-container>
     </el-main>
   </el-container>
@@ -99,15 +102,24 @@ export default {
   data() {
     return {
       input2: "",
-      userInfo:[]
+      userInfo: []
     };
   },
   created() {
     // 一进页面获取储存在本地的数据,并渲染到页面
-    let localStr = window.sessionStorage.getItem('user_info');
+    let localStr = window.sessionStorage.getItem("user_info");
     this.userInfo = JSON.parse(localStr);
-    console.log(this.userInfo);
+    // console.log(this.userInfo);
   },
+  methods: {
+    handleCommand(cmd) {
+      if (cmd == "logout") {
+        // 退出登录
+        window.sessionStorage.removeItem("user_info");
+        this.$router.push("/login");
+      }
+    }
+  }
 };
 </script>
 
@@ -137,25 +149,25 @@ export default {
     padding: 0;
 
     .my-main-header {
-    //   background: red;
+      //   background: red;
       .my-row {
         height: 100%;
         display: flex;
         align-items: center;
-        .nav-bar{
-            display: flex;
-            align-items: center;
+        .nav-bar {
+          display: flex;
+          align-items: center;
         }
         .search-bar {
           width: 200px;
         }
       }
       .user-info {
-          display: flex;
-          align-items: center;
-          .username{
-              margin: 0 10px;
-          }
+        display: flex;
+        align-items: center;
+        .username {
+          margin: 0 10px;
+        }
         img {
           width: 30px;
           height: 30px;
