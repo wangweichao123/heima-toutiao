@@ -3,6 +3,7 @@ import App from './App.vue'
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 import axios from 'axios'
+import JSONbig from 'json-bigint'
 
 
 import router from './router'
@@ -16,6 +17,18 @@ import './assets/css/base.css'
 Vue.prototype.$axios = axios
 axios.defaults.baseURL = 'http://ttapi.research.itcast.cn/'
 Vue.use(ElementUI);
+
+// 在响应数据传给then之前,对数据进行处理
+axios.defaults.transformResponse = [function (data) {
+  // 对 data 进行任意转换处理
+  try {
+    // 可能错误信息
+    return JSONbig.parse(data); // 对大数字进行精度处理
+  } catch (error) {
+    // 上面代码错误后执行
+    return data;
+  }
+}]
 
 // 添加请求拦截器
 axios.interceptors.request.use(function (config) {

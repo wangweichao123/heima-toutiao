@@ -8,13 +8,15 @@ Vue.use(VueRouter)
 import login from '../view/login'
 import home from '../view/home'
 import acticle from '../view/home/acticle'
+import publich from '../view/home/publich'
 
 const routes = [
   { path: '/login', component: login },
   { path:'/', redirect: '/login'},
   { path: '/home', component: home,
   children:[
-    { path:'/acticle', component: acticle }
+    { path:'/acticle', component: acticle },
+    { path:'/publich', component: publich }
   ] }
 ]
 
