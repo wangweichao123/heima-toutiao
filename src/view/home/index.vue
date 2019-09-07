@@ -142,6 +142,7 @@ export default {
       }
     }
     .my-side-main {
+      overflow: hidden;
       padding: 0;
     }
   }

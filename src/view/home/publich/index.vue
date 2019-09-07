@@ -4,7 +4,7 @@
       <span>发表文章</span>
     </div>
     <div>
-      <el-form ref="form" :rules="rules" :model="form" label-width="60px">
+      <el-form ref="form" :rules="rules" :model="form" label-width="60px" v-loading="isLoading">
         <el-form-item label="标题" prop="title">
           <el-input v-model="form.title"></el-input>
         </el-form-item>
@@ -13,11 +13,11 @@
         </el-form-item>
         <el-form-item label="封面"></el-form-item>
         <el-form-item label="频道">
-          <ttchannels></ttchannels>
+          <ttchannels v-model="form.channel_id"></ttchannels>
         </el-form-item>
         <el-form-item>
-          <el-button size="small" @click="publishArticle('form')">发表</el-button>
-          <el-button size="small" type="primary">存入草稿</el-button>
+          <el-button size="small">存入草稿</el-button>
+          <el-button size="small" type="primary" @click="publishArticle('form')">发表</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -40,9 +40,11 @@ export default {
   },
   data() {
     return {
+      isLoading:true,
       form: {
         title: "",
-        content: ""
+        content: "",
+        channel_id: ""
       },
       rules: {
         title: [
@@ -76,24 +78,67 @@ export default {
       }
     };
   },
+  created() {
+    if (this.$route.name == "edit") {
+      this.$axios
+        .get(`/mp/v1_0/articles/${this.$route.params.id}`)
+        .then(res => {
+          this.isLoading = false;
+          // console.log(res1);
+          this.form.title = res.data.data.title;
+          this.form.content = res.data.data.content;
+          this.form.channel_id = res.data.data.channel_id;
+        });
+    }else{
+      this.isLoading = false;
+    }
+  },
   methods: {
     publishArticle(form) {
       // 表单验证
       this.$refs[form].validate(valid => {
         if (valid) {
-          this.$axios
-            .post("/mp/v1_0/articles", {
-             title:this.form.title,
-              content:this.form.content,
-              cover:{ type:1, images:["http://toutiao.meiduo.site/Fjl26KTE9-NFfkRzIZOner4yeqGl"]  },
-              channel_id:2
-            })
-            .then(res => {
-              if (res.data.message.toLowerCase() == "ok") {
-                this.$message.success("发布成功！");
-                this.$router.push("/acticle");
-              }
-            });
+          if (this.$route.name == "edit") {
+            this.$axios
+              .put(`/mp/v1_0/articles/${this.$route.params.id}`, {
+                  title: this.form.title,
+                content: this.form.content,
+                cover: {
+                  type: 1,
+                  images: [
+                    "http://toutiao.meiduo.site/Fjl26KTE9-NFfkRzIZOner4yeqGl"
+                  ]
+                },
+                channel_id: this.form.channel_id
+              })
+              .then(res => {
+                // console.log(res);
+                if (res.data.message.toLowerCase() == 'ok') {
+                  this.$message.success('修改成功');
+                  this.$router.push('/acticle');
+                }
+              });
+
+          } else {
+            this.$axios
+              .post("/mp/v1_0/articles", {
+                title: this.form.title,
+                content: this.form.content,
+                cover: {
+                  type: 1,
+                  images: [
+                    "http://toutiao.meiduo.site/Fjl26KTE9-NFfkRzIZOner4yeqGl"
+                  ]
+                },
+                channel_id: this.form.channel_id
+              })
+              .then(res => {
+                if (res.data.message.toLowerCase() == "ok") {
+                  this.$message.success("发布成功！");
+                  this.$router.push("/acticle");
+                }
+              });
+          }
         } else {
           //   console.log("error submit!!");
           return false;

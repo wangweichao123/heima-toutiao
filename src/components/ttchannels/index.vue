@@ -1,5 +1,5 @@
 <template>
-  <el-select v-model="form.region" placeholder="请选择频道">
+  <el-select :value="channel_id" placeholder="请选择频道" @change="dochange($event)">
     <el-option label="所有频道" value></el-option>
     <el-option
       :label="channel.name"
@@ -13,11 +13,13 @@
 <script>
 export default {
   name:'ttchannels',
+  props:['channel_id'],
+  model:{
+    prop:'channel_id',
+    event:'change'
+  },
   data() {
     return {
-      form:{
-        region:''
-      },
       channels:[]
     }
   },
@@ -27,6 +29,11 @@ export default {
       // console.log(res);
       this.channels = res.data.data.channels;
     });
+  },
+  methods: {
+    dochange(e){
+      this.$emit('change',e)
+    }
   },
 };
 </script>

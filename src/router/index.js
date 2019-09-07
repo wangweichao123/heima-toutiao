@@ -16,10 +16,15 @@ const routes = [
   { path: '/home', component: home,
   children:[
     { path:'/acticle', component: acticle },
-    { path:'/publich', component: publich }
+    { path:'/publich', component: publich },
+    { path:'/publich/:id', component: publich,name:'edit' }
   ] }
 ]
 
+const originalPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 
 // 创建路由对象
 const router = new VueRouter({

@@ -15,15 +15,7 @@
         </el-radio-group>
       </el-form-item>
       <el-form-item label="频道列表:">
-        <el-select v-model="form.region" placeholder="请选择频道">
-          <el-option label="所有频道" value></el-option>
-          <el-option
-            :label="channel.name"
-            v-for="channel in channels"
-            :key="channel.id"
-            :value="channel.id"
-          ></el-option>
-        </el-select>
+        <ttchannels v-model="form.channel_id"></ttchannels>
       </el-form-item>
       <el-form-item label="时间选择:">
         <el-date-picker
@@ -57,14 +49,14 @@
       <el-table-column prop="pubdate" label="发布时间"></el-table-column>
       <el-table-column label="操作" width="150">
         <template slot-scope="scope">
-          <el-button size="small" type="primary" plain>编辑</el-button>
+          <el-button size="small" type="primary" plain @click="doEdit(scope.row.id)">编辑</el-button>
           <el-button size="small" type="danger" plain @click="btnDele(scope.row.id)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
     <el-pagination
       @current-change="handleCurrentChange"
-      :current-page="1"
+      :current-page.sync="currentPage"
       :page-size="10"
       layout="total, prev, pager, next"
       :total="total"
@@ -74,15 +66,20 @@
 </template>
 
 <script>
+import ttchannels from "../../../components/ttchannels/";
 export default {
   name: "articleList",
+  components:{
+    ttchannels
+  },
   data() {
     return {
+      currentPage: 1,
       loading: false,
       total: 13,
       form: {
         radio: "",
-        region: "",
+        channel_id: "",
         date: ""
       },
       tableData: [],
@@ -93,7 +90,7 @@ export default {
     getcurrent(page) {
       this.loading = true;
       const status = this.form.radio === "" ? undefined : this.form.radio;
-      const channel_id = this.form.region === "" ? undefined : this.form.region;
+      const channel_id = this.form.channel_id === "" ? undefined : this.form.channel_id;
       this.$axios
         .get("/mp/v1_0/articles", {
           params: {
@@ -131,7 +128,7 @@ export default {
         .then(() => {
           this.$axios.delete(`/mp/v1_0/articles/${id}`).then(res => {
             // 重新渲染页面
-            this.getcurrent(1);
+            this.getcurrent(this.currentPage);
             this.$message.success("删除成功!");
           });
         })
@@ -141,6 +138,9 @@ export default {
             message: "已取消删除"
           });
         });
+    },
+    doEdit(id){
+      this.$router.push(`/publich/${id}`);
     }
   },
   created() {
