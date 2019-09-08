@@ -52,6 +52,8 @@ router.beforeEach((to, from, next) => {
   //   next();
   // }
 })
+// 对发布文章跳转之前给用户一个提示：是否继续跳转
+
 
 router.afterEach((to,from)=>{
   NProgress.done();

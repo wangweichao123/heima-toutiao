@@ -38,9 +38,13 @@ export default {
     quillEditor,
     ttchannels
   },
+  
   data() {
     return {
-      isLoading:true,
+      // 开关,判断是否点击发表
+      ispublish:false,
+      seveForm: {},
+      isLoading: true,
       form: {
         title: "",
         content: "",
@@ -85,23 +89,37 @@ export default {
         .then(res => {
           this.isLoading = false;
           // console.log(res1);
-          this.form.title = res.data.data.title;
-          this.form.content = res.data.data.content;
-          this.form.channel_id = res.data.data.channel_id;
+          this.form = res.data.data;
+          // 将数据另外保存用于判断
+          Object.assign(this.seveForm, this.form);
         });
-    }else{
+    } else {
       this.isLoading = false;
+    }
+  },
+  // 通过监听id判断是否是新增
+  watch: {
+    '$route.params.id'(value){
+      // 若变化后有id,则是编辑
+      if (value) {
+        
+      }else{
+        // 新增,则将内容清空
+        this.form.title = '';
+        this.form.content = '';
+      }
     }
   },
   methods: {
     publishArticle(form) {
+      this.ispublish=true;
       // 表单验证
       this.$refs[form].validate(valid => {
         if (valid) {
           if (this.$route.name == "edit") {
             this.$axios
               .put(`/mp/v1_0/articles/${this.$route.params.id}`, {
-                  title: this.form.title,
+                title: this.form.title,
                 content: this.form.content,
                 cover: {
                   type: 1,
@@ -113,12 +131,12 @@ export default {
               })
               .then(res => {
                 // console.log(res);
-                if (res.data.message.toLowerCase() == 'ok') {
-                  this.$message.success('修改成功');
-                  this.$router.push('/acticle');
+                if (res.data.message.toLowerCase() == "ok") {
+                  this.$message.success("修改成功");
+                  this.$router.push("/acticle");
+                  
                 }
               });
-
           } else {
             this.$axios
               .post("/mp/v1_0/articles", {
@@ -136,6 +154,7 @@ export default {
                 if (res.data.message.toLowerCase() == "ok") {
                   this.$message.success("发布成功！");
                   this.$router.push("/acticle");
+                  
                 }
               });
           }
@@ -145,6 +164,42 @@ export default {
         }
       });
     }
+  },
+  // 导航守卫,离开页面之前
+  beforeRouteLeave(to, from, next) {
+    // 如果保存了,则直接放行,不做弹框
+    if (this.ispublish) return next();
+    
+    // console.log(to);
+    if (this.$route.name == "edit") {
+      // 编辑则判断内容有没有修改,若修改则做提示
+      if (
+        this.form.title == this.seveForm.title &&
+        this.form.content == this.seveForm.content
+      ) {
+        return next();
+      }
+    } else {
+      // 发布则判断内容是否为空
+      if (this.form.title == '' && this.form.content == '') {
+        return next();
+      }
+    }
+
+    this.$confirm("有未完成内容", "确定要退出?", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning"
+    })
+      .then(() => {
+        next();
+      })
+      .catch(() => {
+        this.$message({
+          type: "info",
+          message: "已取消退出"
+        });
+      });
   }
 };
 </script>
