@@ -9,6 +9,9 @@ import login from '../view/login'
 import home from '../view/home'
 import acticle from '../view/home/acticle'
 import publich from '../view/home/publich'
+import comment from '../view/home/comment'
+import matter from '../view/home/matter'
+import userinfo from '../view/home/userinfo'
 
 const routes = [
   { path: '/login', component: login },
@@ -17,7 +20,10 @@ const routes = [
   children:[
     { path:'/acticle', component: acticle },
     { path:'/publich', component: publich },
-    { path:'/publich/:id', component: publich,name:'edit' }
+    { path:'/publich/:id', component: publich,name:'edit' },
+    { path:'/comment', component: comment,name:'comment' },
+    { path:'/matter', component: matter,name:'matter' },
+    { path:'/userinfo', component: userinfo,name:'userinfo' }
   ] }
 ]
 

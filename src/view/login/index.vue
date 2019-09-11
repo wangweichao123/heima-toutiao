@@ -42,8 +42,8 @@ export default {
   data() {
     return {
       ruleForm: {
-        phone: "18801185985",
-        code: "",
+        phone: "13911111111",
+        code: "246810",
         checkit: false
       },
       rules: {
@@ -114,7 +114,7 @@ export default {
                   message: "登录成功！",
                   type: "success"
                 });
-                
+                this.isloading = false;
                 // 如果正确就跳转到home页
                 this.$router.push("/home");
 
@@ -124,6 +124,7 @@ export default {
                   message: "账号或密码错误！",
                   type: "error"
                 });
+                this.isloading = false;
               }
             })
             // 发请求出现错误就触发

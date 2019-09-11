@@ -11,7 +11,17 @@
         <el-form-item label="内容">
           <quillEditor v-model="form.content" :options="editorOption"></quillEditor>
         </el-form-item>
-        <el-form-item label="封面"></el-form-item>
+        <el-form-item label="封面">
+          <el-radio-group v-model="form.type">
+            <el-radio :label="1">单图</el-radio>
+            <el-radio :label="3">三图</el-radio>
+            <el-radio :label="0">无图</el-radio>
+            <el-radio :label="-1">自动</el-radio>
+          </el-radio-group>
+          <div class="my-updatedimg">
+          <myupload class="updatedimg" v-for="(item , index) in form.type" :key="index" @checked="form.images[item-1] = $event"></myupload>
+          </div>
+        </el-form-item>
         <el-form-item label="频道">
           <ttchannels v-model="form.channel_id"></ttchannels>
         </el-form-item>
@@ -31,24 +41,28 @@ import "quill/dist/quill.bubble.css";
 
 import { quillEditor } from "vue-quill-editor";
 import ttchannels from "../../../components/ttchannels/";
+import myupload from "./components/myupload.vue";
 
 export default {
   name: "publish",
   components: {
     quillEditor,
-    ttchannels
+    ttchannels,
+    myupload
   },
-  
+
   data() {
     return {
       // 开关,判断是否点击发表
-      ispublish:false,
+      ispublish: false,
       seveForm: {},
       isLoading: true,
       form: {
         title: "",
         content: "",
-        channel_id: ""
+        channel_id: "",
+        images:[],
+        type:1
       },
       rules: {
         title: [
@@ -99,20 +113,19 @@ export default {
   },
   // 通过监听id判断是否是新增
   watch: {
-    '$route.params.id'(value){
+    "$route.params.id"(value) {
       // 若变化后有id,则是编辑
       if (value) {
-        
-      }else{
+      } else {
         // 新增,则将内容清空
-        this.form.title = '';
-        this.form.content = '';
+        this.form.title = "";
+        this.form.content = "";
       }
     }
   },
   methods: {
     publishArticle(form) {
-      this.ispublish=true;
+      this.ispublish = true;
       // 表单验证
       this.$refs[form].validate(valid => {
         if (valid) {
@@ -122,10 +135,8 @@ export default {
                 title: this.form.title,
                 content: this.form.content,
                 cover: {
-                  type: 1,
-                  images: [
-                    "http://toutiao.meiduo.site/Fjl26KTE9-NFfkRzIZOner4yeqGl"
-                  ]
+                  type: this.form.type,
+                  images: this.form.images
                 },
                 channel_id: this.form.channel_id
               })
@@ -134,7 +145,6 @@ export default {
                 if (res.data.message.toLowerCase() == "ok") {
                   this.$message.success("修改成功");
                   this.$router.push("/acticle");
-                  
                 }
               });
           } else {
@@ -143,10 +153,8 @@ export default {
                 title: this.form.title,
                 content: this.form.content,
                 cover: {
-                  type: 1,
-                  images: [
-                    "http://toutiao.meiduo.site/Fjl26KTE9-NFfkRzIZOner4yeqGl"
-                  ]
+                  type: this.form.type,
+                  images: this.form.images
                 },
                 channel_id: this.form.channel_id
               })
@@ -154,7 +162,6 @@ export default {
                 if (res.data.message.toLowerCase() == "ok") {
                   this.$message.success("发布成功！");
                   this.$router.push("/acticle");
-                  
                 }
               });
           }
@@ -169,7 +176,7 @@ export default {
   beforeRouteLeave(to, from, next) {
     // 如果保存了,则直接放行,不做弹框
     if (this.ispublish) return next();
-    
+
     // console.log(to);
     if (this.$route.name == "edit") {
       // 编辑则判断内容有没有修改,若修改则做提示
@@ -181,7 +188,7 @@ export default {
       }
     } else {
       // 发布则判断内容是否为空
-      if (this.form.title == '' && this.form.content == '') {
+      if (this.form.title == "" && this.form.content == "") {
         return next();
       }
     }
@@ -204,8 +211,14 @@ export default {
 };
 </script>
 
-<style>
+<style lang="less">
 .ql-editor {
   height: 400px;
+}
+.my-updatedimg{
+  display: flex;
+  .updatedimg{
+    margin-right: 10px;
+  }
 }
 </style>

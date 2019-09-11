@@ -6,6 +6,8 @@ import axios from 'axios'
 import JSONbig from 'json-bigint'
 
 
+
+
 import router from './router'
 
 Vue.config.productionTip = false
@@ -58,5 +60,6 @@ axios.interceptors.response.use(function (response) {
 
 new Vue({
   router,
+  store,
   render: h => h(App),
 }).$mount('#app')
